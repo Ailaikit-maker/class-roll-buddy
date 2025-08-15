@@ -14,13 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance_records: {
+        Row: {
+          child_id: string
+          created_at: string
+          date: string
+          id: string
+          is_present: boolean
+          marked_absent_at: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          date: string
+          id?: string
+          is_present?: boolean
+          marked_absent_at?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          is_present?: boolean
+          marked_absent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      children: {
+        Row: {
+          created_at: string
+          grade: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          grade?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          grade?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      escalations: {
+        Row: {
+          absence_count: number
+          child_id: string
+          escalated_at: string
+          escalation_type: string
+          id: string
+          period_end: string
+          period_start: string
+          resolved: boolean
+          resolved_at: string | null
+        }
+        Insert: {
+          absence_count: number
+          child_id: string
+          escalated_at?: string
+          escalation_type: string
+          id?: string
+          period_end: string
+          period_start: string
+          resolved?: boolean
+          resolved_at?: string | null
+        }
+        Update: {
+          absence_count?: number
+          child_id?: string
+          escalated_at?: string
+          escalation_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          resolved?: boolean
+          resolved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalations_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_and_create_escalations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
