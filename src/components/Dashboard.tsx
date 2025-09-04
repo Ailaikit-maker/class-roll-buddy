@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, Calendar, AlertTriangle, DollarSign, MessageCircle, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
@@ -14,6 +14,46 @@ const Dashboard = () => {
       icon: Users,
       path: "/register",
       available: true
+    },
+    {
+      id: "planning",
+      title: "Planning",
+      description: "Curriculum and lesson planning",
+      icon: Calendar,
+      path: "/planning",
+      available: false
+    },
+    {
+      id: "disciplinary",
+      title: "Disciplinary & Intervention",
+      description: "Student behavior management",
+      icon: AlertTriangle,
+      path: "/disciplinary",
+      available: false
+    },
+    {
+      id: "finance",
+      title: "Finance",
+      description: "Budget and financial management",
+      icon: DollarSign,
+      path: "/finance",
+      available: false
+    },
+    {
+      id: "parent-communication",
+      title: "Parent Communication",
+      description: "Connect with parents and guardians",
+      icon: MessageCircle,
+      path: "/parent-communication",
+      available: false
+    },
+    {
+      id: "internal-communication",
+      title: "Internal Communication",
+      description: "Staff and internal messaging",
+      icon: Building2,
+      path: "/internal-communication",
+      available: false
     }
   ];
 
@@ -22,47 +62,51 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            School Management System
+            Ailaikit School Management System
           </h1>
           <p className="text-muted-foreground">
             Select a module to get started
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map((module) => {
             const IconComponent = module.icon;
             
             return (
               <Card 
                 key={module.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer group"
-                onClick={() => navigate(module.path)}
+                className={`hover:shadow-md transition-all cursor-pointer group ${
+                  !module.available ? 'opacity-60' : ''
+                }`}
+                onClick={() => module.available && navigate(module.path)}
               >
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 rounded-lg bg-primary/10">
-                      <IconComponent className="h-6 w-6 text-primary" />
+                      <IconComponent className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                    <div className="flex-1">
+                      <CardTitle className="text-base group-hover:text-primary transition-colors">
                         {module.title}
                       </CardTitle>
                     </div>
                   </div>
-                  <CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <CardDescription className="text-sm mb-3">
                     {module.description}
                   </CardDescription>
-                </CardHeader>
-                <CardContent>
                   <Button 
+                    size="sm"
                     className="w-full"
+                    disabled={!module.available}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(module.path);
+                      if (module.available) navigate(module.path);
                     }}
                   >
-                    Open {module.title}
+                    {module.available ? 'Open' : 'Coming Soon'}
                   </Button>
                 </CardContent>
               </Card>
@@ -71,19 +115,21 @@ const Dashboard = () => {
 
           {/* Add New Module Placeholder */}
           <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-center h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-center">
                 <div className="text-center">
-                  <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <CardTitle className="text-muted-foreground">
-                    Add New Section
+                  <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <CardTitle className="text-base text-muted-foreground">
+                    Add Module
                   </CardTitle>
-                  <CardDescription>
-                    More modules coming soon
-                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
+            <CardContent className="pt-0">
+              <CardDescription className="text-sm text-center">
+                Expand your system
+              </CardDescription>
+            </CardContent>
           </Card>
         </div>
       </div>
