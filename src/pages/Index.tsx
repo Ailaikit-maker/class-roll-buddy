@@ -1,7 +1,7 @@
-import AttendanceRegister from '../components/AttendanceRegister';
+import Dashboard from '../components/Dashboard';
 
 const Index = () => {
-  return <AttendanceRegister />;
+  return <Dashboard />;
 };
 
 export default Index;
