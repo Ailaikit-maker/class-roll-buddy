@@ -1,138 +1,279 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Plus, Calendar, AlertTriangle, DollarSign, MessageCircle, Building2 } from "lucide-react";
+import { 
+  Users, 
+  Calendar, 
+  AlertTriangle, 
+  DollarSign, 
+  MessageCircle, 
+  Building2, 
+  FileText,
+  GraduationCap,
+  UserCog,
+  Download,
+  BarChart3
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const modules = [
+  const mainModules = [
     {
-      id: "register",
-      title: "Register",
-      description: "Attendance tracking and management",
+      id: "attendance",
+      title: "Attendance",
+      description: "Track student attendance with comprehensive register",
       icon: Users,
       path: "/register",
-      available: true
+      available: true,
+      color: "bg-success text-success-foreground"
     },
     {
       id: "planning",
       title: "Planning",
-      description: "Curriculum and lesson planning",
+      description: "AI-assisted curriculum and lesson planning diary",
       icon: Calendar,
       path: "/planning",
-      available: false
+      available: false,
+      color: "bg-violet text-violet-foreground"
     },
     {
       id: "disciplinary",
-      title: "Disciplinary & Intervention",
-      description: "Student behavior management",
+      title: "Disciplinary",
+      description: "Student intervention tracking and automated reporting",
       icon: AlertTriangle,
       path: "/disciplinary",
-      available: false
+      available: false,
+      color: "bg-warning text-warning-foreground"
     },
     {
       id: "finance",
       title: "Finance",
-      description: "Budget and financial management",
+      description: "Comprehensive finance dashboard and analytics",
       icon: DollarSign,
       path: "/finance",
-      available: false
+      available: true,
+      color: "bg-emerald text-emerald-foreground"
+    },
+    {
+      id: "reports",
+      title: "Reports",
+      description: "AI-powered report generation and data extraction",
+      icon: FileText,
+      path: "/reports",
+      available: false,
+      color: "bg-info text-info-foreground"
     },
     {
       id: "parent-communication",
       title: "Parent Communication",
-      description: "Connect with parents and guardians",
+      description: "Multi-channel messaging with WhatsApp and email",
       icon: MessageCircle,
       path: "/parent-communication",
-      available: false
+      available: false,
+      color: "bg-pink text-pink-foreground"
     },
     {
       id: "internal-communication",
       title: "Internal Communication",
-      description: "Staff and internal messaging",
+      description: "Staff messaging system with message archiving",
       icon: Building2,
       path: "/internal-communication",
-      available: false
+      available: false,
+      color: "bg-cyan text-cyan-foreground"
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Ailaikit School Management System
-          </h1>
-          <p className="text-muted-foreground">
-            Select a module to get started
-          </p>
-        </header>
+  const managementTools = [
+    {
+      id: "classes",
+      title: "Classes",
+      description: "Hierarchical class management by teacher",
+      icon: GraduationCap,
+      path: "/classes",
+      available: false,
+      color: "bg-emerald text-emerald-foreground"
+    },
+    {
+      id: "staff-admin",
+      title: "Staff Administration",
+      description: "Comprehensive staff management system",
+      icon: UserCog,
+      path: "/staff-admin",
+      available: false,
+      color: "bg-slate text-slate-foreground"
+    }
+  ];
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {modules.map((module) => {
+  const exportOptions = [
+    { label: "Excel", icon: BarChart3 },
+    { label: "Word", icon: FileText },
+    { label: "PDF", icon: Download }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                  <GraduationCap className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xl font-semibold text-primary">Ailaikit School Management</span>
+              </div>
+              
+              <nav className="hidden md:flex space-x-1">
+                {mainModules.slice(0, 7).map((module) => {
+                  const IconComponent = module.icon;
+                  return (
+                    <Button
+                      key={module.id}
+                      variant={module.id === "dashboard" ? "default" : "ghost"}
+                      size="sm"
+                      className="flex items-center space-x-2"
+                      onClick={() => module.available && navigate(module.path)}
+                      disabled={!module.available}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      <span>{module.title}</span>
+                    </Button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground mr-2">Export:</span>
+              {exportOptions.map((option) => {
+                const IconComponent = option.icon;
+                return (
+                  <Button key={option.label} variant="ghost" size="sm">
+                    <IconComponent className="h-4 w-4 mr-1" />
+                    {option.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome to Ailaikit School Management
+          </h1>
+          <p className="text-lg text-gray-600">
+            Your comprehensive educational administration platform
+          </p>
+        </div>
+
+        {/* Main Modules Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+          {mainModules.slice(0, 6).map((module) => {
             const IconComponent = module.icon;
             
             return (
               <Card 
                 key={module.id} 
-                className={`hover:shadow-md transition-all cursor-pointer group ${
-                  !module.available ? 'opacity-60' : ''
+                className={`${module.color} hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden relative group ${
+                  !module.available ? 'opacity-75' : ''
                 }`}
                 onClick={() => module.available && navigate(module.path)}
               >
                 <CardHeader className="pb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <IconComponent className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-base group-hover:text-primary transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <IconComponent className="h-8 w-8 mb-3" />
+                      <CardTitle className="text-xl mb-1">
                         {module.title}
                       </CardTitle>
                     </div>
+                    <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/10"></div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="text-sm mb-3">
+                  <CardDescription className="text-current/90 text-sm leading-relaxed">
                     {module.description}
                   </CardDescription>
-                  <Button 
-                    size="sm"
-                    className="w-full"
-                    disabled={!module.available}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (module.available) navigate(module.path);
-                    }}
-                  >
-                    {module.available ? 'Open' : 'Coming Soon'}
-                  </Button>
                 </CardContent>
               </Card>
             );
           })}
-
-          {/* Add New Module Placeholder */}
-          <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+          
+          {/* Internal Communication - Full width on last row */}
+          <Card 
+            className={`${mainModules[6].color} hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden relative group ${
+              !mainModules[6].available ? 'opacity-75' : ''
+            } md:col-span-2 lg:col-span-1`}
+            onClick={() => mainModules[6].available && navigate(mainModules[6].path)}
+          >
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <CardTitle className="text-base text-muted-foreground">
-                    Add Module
+              <div className="flex items-start justify-between">
+                <div>
+                  <Building2 className="h-8 w-8 mb-3" />
+                  <CardTitle className="text-xl mb-1">
+                    {mainModules[6].title}
                   </CardTitle>
                 </div>
+                <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/10"></div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <CardDescription className="text-sm text-center">
-                Expand your system
+              <CardDescription className="text-current/90 text-sm leading-relaxed">
+                {mainModules[6].description}
               </CardDescription>
             </CardContent>
           </Card>
         </div>
-      </div>
+
+        {/* Management Tools Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+            <div className="w-1 h-6 bg-primary rounded mr-3"></div>
+            Management Tools
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {managementTools.map((tool) => {
+              const IconComponent = tool.icon;
+              
+              return (
+                <Card 
+                  key={tool.id} 
+                  className={`${tool.color} hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden relative group ${
+                    !tool.available ? 'opacity-75' : ''
+                  }`}
+                  onClick={() => tool.available && navigate(tool.path)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <IconComponent className="h-8 w-8 mb-3" />
+                        <CardTitle className="text-xl mb-1">
+                          {tool.title}
+                        </CardTitle>
+                      </div>
+                      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/10"></div>
+                      <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white/5"></div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <CardDescription className="text-current/90 text-sm leading-relaxed">
+                      {tool.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
