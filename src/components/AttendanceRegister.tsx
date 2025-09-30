@@ -206,8 +206,7 @@ const AttendanceRegister = () => {
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-primary mb-2">Laerskool Edleen</h1>
-          <h2 className="text-2xl font-semibold text-muted-foreground">Attendance Register</h2>
+          <h1 className="text-3xl font-bold text-primary mb-2">Attendance Register</h1>
         </div>
 
         {/* Date Selector and Stats */}
