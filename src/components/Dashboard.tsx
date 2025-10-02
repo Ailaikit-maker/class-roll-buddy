@@ -149,7 +149,7 @@ const Dashboard = () => {
       description: "Hierarchical class management by teacher",
       icon: GraduationCap,
       path: "/classes",
-      available: false,
+      available: true,
       color: "bg-emerald text-emerald-foreground"
     },
     {
