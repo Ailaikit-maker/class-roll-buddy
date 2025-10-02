@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import Logo from '@/components/Logo';
 import { Calendar, AlertTriangle, Users, Clock } from 'lucide-react';
 
 interface Child {
@@ -205,6 +206,9 @@ const AttendanceRegister = () => {
     <div className="min-h-screen bg-background p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex justify-center mb-4">
+          <Logo className="h-16" />
+        </div>
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-primary mb-2">Attendance Register</h1>
         </div>

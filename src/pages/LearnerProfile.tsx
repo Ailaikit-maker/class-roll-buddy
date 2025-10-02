@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import Logo from "@/components/Logo";
 import { Calendar, AlertCircle, DollarSign, Trophy, Activity } from "lucide-react";
 import { format } from "date-fns";
 
@@ -107,6 +108,9 @@ const LearnerProfile = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Logo className="h-12" />
+          </div>
           <h1 className="text-3xl font-bold text-primary mb-4">Learner Profile</h1>
           <Select value={selectedChildId} onValueChange={setSelectedChildId}>
             <SelectTrigger className="w-full max-w-md">

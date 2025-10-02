@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -89,13 +90,15 @@ const Finance = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/")}
-              className="mb-4"
-            >
-              ← Back to Dashboard
-            </Button>
+            <div className="flex items-center gap-4 mb-4">
+              <Logo className="h-12" />
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/")}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Finance Dashboard</h1>
             <p className="text-gray-600">Comprehensive financial analytics and reporting</p>
           </div>

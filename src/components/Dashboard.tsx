@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Logo from "@/components/Logo";
 import { 
   Users, 
   Calendar, 
@@ -184,9 +185,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                  <GraduationCap className="h-5 w-5 text-white" />
-                </div>
+                <Logo className="h-10" />
                 <span className="text-xl font-semibold text-primary">Ailaikit School Management</span>
               </div>
               

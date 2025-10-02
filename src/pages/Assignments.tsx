@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import Logo from "@/components/Logo";
 import { PlusCircle, BookOpen, FileText, Award, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -141,6 +142,7 @@ const Assignments = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
+            <Logo className="h-14" />
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <BookOpen className="h-6 w-6 text-primary" />
             </div>
