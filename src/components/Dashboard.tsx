@@ -175,7 +175,7 @@ const Dashboard = () => {
       {/* Compact Navigation Banner */}
       <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
+          <div className="flex flex-wrap items-center gap-2 py-3">
             {mainModules.map((module) => {
               const IconComponent = module.icon;
               return (
