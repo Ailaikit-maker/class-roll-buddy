@@ -67,7 +67,8 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Navigation Banner */}
       <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-2 py-3">
+          {/* Main Modules Row */}
+          <div className="flex flex-wrap items-center gap-2 py-3 border-b">
             {mainModules.map((module) => {
               const IconComponent = module.icon;
               const isActive = location.pathname === module.path;
@@ -94,11 +95,13 @@ const Layout = ({ children }: LayoutProps) => {
                 </Button>
               );
             })}
+          </div>
 
-            {/* Separator */}
-            <div className="h-6 w-px bg-border mx-1"></div>
-
-            {/* Management Tools */}
+          {/* Management Tools Row */}
+          <div className="flex flex-wrap items-center gap-2 py-3">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2">
+              Management
+            </span>
             {managementTools.map((tool) => {
               const IconComponent = tool.icon;
               const isActive = location.pathname === tool.path;
