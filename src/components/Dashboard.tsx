@@ -208,6 +208,34 @@ const Dashboard = () => {
                 </Button>
               );
             })}
+            
+            {/* Separator */}
+            <div className="h-6 w-px bg-border mx-1"></div>
+            
+            {/* Management Tools */}
+            {managementTools.map((tool) => {
+              const IconComponent = tool.icon;
+              return (
+                <Button
+                  key={tool.id}
+                  variant="ghost"
+                  size="sm"
+                  className={`flex items-center gap-2 whitespace-nowrap transition-colors ${
+                    tool.available 
+                      ? "hover:bg-violet/10 cursor-pointer" 
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                  onClick={() => tool.available && navigate(tool.path)}
+                  disabled={!tool.available}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span className="text-sm">{tool.title}</span>
+                  {!tool.available && (
+                    <span className="text-xs bg-muted px-1.5 py-0.5 rounded">Soon</span>
+                  )}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </div>
