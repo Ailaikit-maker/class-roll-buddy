@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
-import { Upload, FileText, Download, Search, Filter, Trash2 } from "lucide-react";
+import { Upload, FileText, Download, Search, Filter, Trash2, Folder, FolderOpen, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 const GRADES = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
@@ -24,6 +24,7 @@ const DataHub = () => {
   const [filterGrade, setFilterGrade] = useState<string>("all");
   const [filterSubject, setFilterSubject] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"folders" | "documents">("folders");
   
   const [formData, setFormData] = useState({
     title: "",
@@ -161,25 +162,78 @@ const DataHub = () => {
     return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
+  // Group documents by subject and grade for folder view
+  const folders = useMemo(() => {
+    if (!documents) return [];
+    
+    const folderMap = new Map<string, {
+      subject: string;
+      grade: string;
+      count: number;
+      lastModified: Date;
+    }>();
+
+    documents.forEach(doc => {
+      const key = `${doc.subject}-${doc.grade}`;
+      const existing = folderMap.get(key);
+      const docDate = new Date(doc.created_at);
+      
+      if (!existing) {
+        folderMap.set(key, {
+          subject: doc.subject,
+          grade: doc.grade,
+          count: 1,
+          lastModified: docDate
+        });
+      } else {
+        existing.count++;
+        if (docDate > existing.lastModified) {
+          existing.lastModified = docDate;
+        }
+      }
+    });
+
+    return Array.from(folderMap.values()).sort((a, b) => 
+      a.subject.localeCompare(b.subject) || a.grade.localeCompare(b.grade)
+    );
+  }, [documents]);
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Logo className="h-14" />
             <div>
               <h1 className="text-3xl font-bold text-primary">Data Hub</h1>
-              <p className="text-muted-foreground">Central repository for lessons and resources</p>
+              <p className="text-sm text-muted-foreground">Centralized document repository organized by grade and subject</p>
             </div>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Upload className="h-4 w-4" />
-                Upload Document
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button 
+              variant={viewMode === "folders" ? "default" : "outline"}
+              onClick={() => setViewMode("folders")}
+              className="gap-2"
+            >
+              <Folder className="h-4 w-4" />
+              Folders
+            </Button>
+            <Button 
+              variant={viewMode === "documents" ? "default" : "outline"}
+              onClick={() => setViewMode("documents")}
+              className="gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              All Documents
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                  <Upload className="h-4 w-4" />
+                  Upload Document
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Upload New Document</DialogTitle>
@@ -254,68 +308,96 @@ const DataHub = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
+        <Card className="mb-6 border-0 shadow-sm bg-muted/30">
           <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Filter className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-foreground">Filters & Search</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium flex items-center gap-2 mb-2">
-                  <Search className="h-4 w-4" />
-                  Search
-                </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search documents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium flex items-center gap-2 mb-2">
-                  <Filter className="h-4 w-4" />
-                  Filter by Grade
-                </label>
-                <Select value={filterGrade} onValueChange={setFilterGrade}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Grades</SelectItem>
-                    {GRADES.map((grade) => (
-                      <SelectItem key={grade} value={grade}>
-                        {grade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium flex items-center gap-2 mb-2">
-                  <Filter className="h-4 w-4" />
-                  Filter by Subject
-                </label>
-                <Select value={filterSubject} onValueChange={setFilterSubject}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Subjects</SelectItem>
-                    {SUBJECTS.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={filterGrade} onValueChange={setFilterGrade}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Grades</SelectItem>
+                  {GRADES.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={filterSubject} onValueChange={setFilterSubject}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  {SUBJECTS.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
 
-        {/* Documents Grid */}
+        {/* Content Grid */}
         {isLoading ? (
-          <p>Loading documents...</p>
+          <p>Loading...</p>
+        ) : viewMode === "folders" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {folders.length > 0 ? (
+              folders.map((folder) => (
+                <Card 
+                  key={`${folder.subject}-${folder.grade}`} 
+                  className="hover:shadow-md transition-shadow cursor-pointer border-muted"
+                  onClick={() => {
+                    setFilterSubject(folder.subject);
+                    setFilterGrade(folder.grade);
+                    setViewMode("documents");
+                  }}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <FolderOpen className="h-10 w-10 text-primary" />
+                      <div className="text-right">
+                        <p className="text-2xl font-semibold text-primary">{folder.count}</p>
+                        <p className="text-xs text-muted-foreground">documents</p>
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-foreground mb-1">{folder.subject}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">{folder.grade}</p>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>Modified: {format(folder.lastModified, "dd/MM/yyyy")}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Folder className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No folders found</p>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {documents && documents.length > 0 ? (
