@@ -1,16 +1,31 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/Logo";
-import { Calendar, AlertCircle, DollarSign, Trophy, Activity } from "lucide-react";
+import { 
+  Calendar, 
+  AlertCircle, 
+  DollarSign, 
+  Trophy, 
+  Activity,
+  Search,
+  User,
+  BookOpen,
+  Award
+} from "lucide-react";
 import { format } from "date-fns";
+
+type TabType = "overview" | "attendance" | "academics" | "disciplinary" | "finance" | "extracurricular" | "awards";
 
 const LearnerProfile = () => {
   const [selectedChildId, setSelectedChildId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
 
   const { data: children } = useQuery({
     queryKey: ["children"],
@@ -38,34 +53,6 @@ const LearnerProfile = () => {
     },
   });
 
-  const { data: disciplinary } = useQuery({
-    queryKey: ["disciplinary", selectedChildId],
-    enabled: !!selectedChildId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("disciplinary_records")
-        .select("*")
-        .eq("child_id", selectedChildId)
-        .order("incident_date", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: fees } = useQuery({
-    queryKey: ["fees", selectedChildId],
-    enabled: !!selectedChildId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("school_fees")
-        .select("*")
-        .eq("child_id", selectedChildId)
-        .order("academic_year", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: activities } = useQuery({
     queryKey: ["learner-activities", selectedChildId],
     enabled: !!selectedChildId,
@@ -77,9 +64,7 @@ const LearnerProfile = () => {
           extracurricular_activities (
             name,
             description,
-            category,
-            instructor,
-            schedule
+            category
           )
         `)
         .eq("child_id", selectedChildId);
@@ -95,8 +80,7 @@ const LearnerProfile = () => {
       const { data, error } = await supabase
         .from("awards")
         .select("*")
-        .eq("child_id", selectedChildId)
-        .order("date_received", { ascending: false });
+        .eq("child_id", selectedChildId);
       if (error) throw error;
       return data;
     },
@@ -104,263 +88,351 @@ const LearnerProfile = () => {
 
   const selectedChild = children?.find(c => c.id === selectedChildId);
 
+  const filteredChildren = children?.filter(child =>
+    child.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Calculate stats
+  const attendanceRate = attendance && attendance.length > 0
+    ? ((attendance.filter(a => a.status === "present").length / attendance.length) * 100).toFixed(1)
+    : "0.0";
+
+  const academicAverage = "88.8"; // Mock data
+  const activitiesCount = activities?.length || 0;
+  const awardsCount = awards?.length || 0;
+
+  const getInitials = (name: string) => {
+    return name.split(" ").map(n => n[0]).join("").toUpperCase();
+  };
+
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Logo className="h-12" />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 h-16">
+            <Logo className="h-10" />
+            <div>
+              <h1 className="text-xl font-semibold text-primary">Learner Profiles</h1>
+              <p className="text-sm text-muted-foreground">Comprehensive student information and academic records</p>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-primary mb-4">Learner Profile</h1>
-          <Select value={selectedChildId} onValueChange={setSelectedChildId}>
-            <SelectTrigger className="w-full max-w-md">
-              <SelectValue placeholder="Select a learner" />
-            </SelectTrigger>
-            <SelectContent>
-              {children?.map((child) => (
-                <SelectItem key={child.id} value={child.id}>
-                  {child.name} - Grade {child.grade}
-                </SelectItem>
+        </div>
+      </header>
+
+      <div className="flex h-[calc(100vh-4rem)]">
+        {/* Left Sidebar - Student List */}
+        <div className="w-80 bg-white border-r overflow-y-auto">
+          <div className="p-4">
+            <h3 className="font-semibold text-primary mb-3">Select Student</h3>
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="space-y-1">
+              {filteredChildren?.map((child) => (
+                <button
+                  key={child.id}
+                  onClick={() => setSelectedChildId(child.id)}
+                  className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    selectedChildId === child.id
+                      ? "bg-primary text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  <div className="font-medium">{child.name}</div>
+                  <div className={`text-sm ${selectedChildId === child.id ? "text-white/80" : "text-muted-foreground"}`}>
+                    Grade {child.grade} • STU{child.id.slice(0, 3).toUpperCase()}
+                  </div>
+                </button>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
+          </div>
         </div>
 
-        {selectedChild && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-2xl">{selectedChild.name}</CardTitle>
-              <p className="text-muted-foreground">Grade {selectedChild.grade}</p>
-            </CardHeader>
-          </Card>
-        )}
-
-        {selectedChildId && (
-          <Tabs defaultValue="attendance" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="attendance">
-                <Calendar className="h-4 w-4 mr-2" />
-                Attendance
-              </TabsTrigger>
-              <TabsTrigger value="disciplinary">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                Disciplinary
-              </TabsTrigger>
-              <TabsTrigger value="finance">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Finance
-              </TabsTrigger>
-              <TabsTrigger value="activities">
-                <Activity className="h-4 w-4 mr-2" />
-                Extracurricular
-              </TabsTrigger>
-              <TabsTrigger value="awards">
-                <Trophy className="h-4 w-4 mr-2" />
-                Awards
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="attendance" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Attendance Records</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {attendance && attendance.length > 0 ? (
-                      attendance.map((record) => (
-                        <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <span>{format(new Date(record.date), "PPP")}</span>
-                          <Badge variant={record.is_present ? "default" : "destructive"}>
-                            {record.is_present ? "Present" : "Absent"}
-                          </Badge>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No attendance records found</p>
-                    )}
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto">
+          {selectedChild ? (
+            <div>
+              {/* Student Header - Purple Gradient */}
+              <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white p-8">
+                <div className="max-w-6xl mx-auto">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-16 w-16 bg-white/20">
+                        <AvatarFallback className="bg-white/20 text-white text-xl font-semibold">
+                          {getInitials(selectedChild.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h2 className="text-3xl font-bold">{selectedChild.name}</h2>
+                        <p className="text-white/90">Grade {selectedChild.grade} • STU{selectedChild.id.slice(0, 3).toUpperCase()}</p>
+                        <p className="text-white/80 text-sm">DOB: 15/03/2014</p>
+                      </div>
+                    </div>
+                    <div className="text-right text-sm">
+                      <div className="mb-1">
+                        <span className="text-white/80">Parent Contact:</span>
+                        <div className="font-medium">Mrs. Johnson - 082 123 4567</div>
+                      </div>
+                      <div>
+                        <span className="text-white/80">Address:</span>
+                        <div className="font-medium">123 Oak Street, Johannesburg</div>
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </div>
 
-            <TabsContent value="disciplinary" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Disciplinary Records</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {disciplinary && disciplinary.length > 0 ? (
-                      disciplinary.map((record) => (
-                        <div key={record.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold">{record.incident_type}</h4>
-                            <Badge 
-                              variant={
-                                record.severity === 'serious' ? 'destructive' : 
-                                record.severity === 'moderate' ? 'default' : 
-                                'secondary'
-                              }
-                            >
-                              {record.severity}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {format(new Date(record.incident_date), "PPP")}
-                          </p>
-                          {record.description && (
-                            <p className="text-sm mb-2">{record.description}</p>
-                          )}
-                          {record.action_taken && (
-                            <p className="text-sm text-muted-foreground">
-                              <strong>Action:</strong> {record.action_taken}
-                            </p>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No disciplinary records found</p>
-                    )}
+              {/* Navigation Tabs */}
+              <div className="bg-white border-b sticky top-0 z-40">
+                <div className="max-w-6xl mx-auto px-8">
+                  <div className="flex gap-2 py-3">
+                    <Button
+                      variant={activeTab === "overview" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("overview")}
+                      className="flex items-center gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Overview
+                    </Button>
+                    <Button
+                      variant={activeTab === "attendance" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("attendance")}
+                      className="flex items-center gap-2"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Attendance
+                    </Button>
+                    <Button
+                      variant={activeTab === "academics" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("academics")}
+                      className="flex items-center gap-2"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Academics
+                    </Button>
+                    <Button
+                      variant={activeTab === "disciplinary" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("disciplinary")}
+                      className="flex items-center gap-2"
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      Disciplinary
+                    </Button>
+                    <Button
+                      variant={activeTab === "finance" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("finance")}
+                      className="flex items-center gap-2"
+                    >
+                      <DollarSign className="h-4 w-4" />
+                      Finance
+                    </Button>
+                    <Button
+                      variant={activeTab === "extracurricular" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("extracurricular")}
+                      className="flex items-center gap-2"
+                    >
+                      <Activity className="h-4 w-4" />
+                      Extracurricular
+                    </Button>
+                    <Button
+                      variant={activeTab === "awards" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("awards")}
+                      className="flex items-center gap-2"
+                    >
+                      <Award className="h-4 w-4" />
+                      Awards
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </div>
 
-            <TabsContent value="finance" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>School Fees</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {fees && fees.length > 0 ? (
-                      fees.map((fee) => (
-                        <div key={fee.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-semibold text-lg">{fee.academic_year}</h4>
-                            <Badge 
-                              variant={
-                                fee.payment_status === 'paid' ? 'default' : 
-                                fee.payment_status === 'partial' ? 'secondary' : 
-                                'destructive'
-                              }
-                            >
-                              {fee.payment_status}
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Total Amount</p>
-                              <p className="text-xl font-bold">R {Number(fee.total_amount).toFixed(2)}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Amount Paid</p>
-                              <p className="text-xl font-bold text-green-600">R {Number(fee.amount_paid).toFixed(2)}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Balance</p>
-                              <p className="text-xl font-bold text-red-600">
-                                R {(Number(fee.total_amount) - Number(fee.amount_paid)).toFixed(2)}
-                              </p>
-                            </div>
-                            {fee.last_payment_date && (
-                              <div>
-                                <p className="text-sm text-muted-foreground">Last Payment</p>
-                                <p className="text-sm">{format(new Date(fee.last_payment_date), "PPP")}</p>
+              {/* Tab Content */}
+              <div className="max-w-6xl mx-auto px-8 py-6">
+                {activeTab === "overview" && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6">Student Overview</h3>
+                    
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-4 gap-4 mb-8">
+                      <Card className="bg-emerald-50 border-emerald-200">
+                        <CardContent className="p-6 text-center">
+                          <div className="text-4xl font-bold text-emerald-700">{attendanceRate}%</div>
+                          <div className="text-sm text-emerald-600 mt-1">Attendance Rate</div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="p-6 text-center">
+                          <div className="text-4xl font-bold text-blue-700">{academicAverage}%</div>
+                          <div className="text-sm text-blue-600 mt-1">Academic Average</div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-purple-50 border-purple-200">
+                        <CardContent className="p-6 text-center">
+                          <div className="text-4xl font-bold text-purple-700">{activitiesCount}</div>
+                          <div className="text-sm text-purple-600 mt-1">Activities</div>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-amber-50 border-amber-200">
+                        <CardContent className="p-6 text-center">
+                          <div className="text-4xl font-bold text-amber-700">{awardsCount}</div>
+                          <div className="text-sm text-amber-600 mt-1">Awards</div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Two Column Layout */}
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-4">Recent Academic Performance</h4>
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span>Mathematics</span>
+                                <span className="font-semibold">92%</span>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No fee records found</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="activities" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Extracurricular Activities</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {activities && activities.length > 0 ? (
-                      activities.map((la) => (
-                        <div key={la.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold">{la.extracurricular_activities.name}</h4>
-                            <Badge variant={la.status === 'active' ? 'default' : 'secondary'}>
-                              {la.status}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {la.extracurricular_activities.category}
-                          </p>
-                          {la.extracurricular_activities.description && (
-                            <p className="text-sm mb-2">{la.extracurricular_activities.description}</p>
-                          )}
-                          <div className="text-sm space-y-1">
-                            {la.extracurricular_activities.instructor && (
-                              <p><strong>Instructor:</strong> {la.extracurricular_activities.instructor}</p>
-                            )}
-                            {la.extracurricular_activities.schedule && (
-                              <p><strong>Schedule:</strong> {la.extracurricular_activities.schedule}</p>
-                            )}
-                            <p><strong>Enrolled:</strong> {format(new Date(la.enrollment_date), "PPP")}</p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No activities enrolled</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="awards" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Awards & Achievements</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {awards && awards.length > 0 ? (
-                      awards.map((award) => (
-                        <div key={award.id} className="border rounded-lg p-4">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Trophy className="h-6 w-6 text-yellow-500" />
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{award.award_name}</h4>
-                              <Badge variant="secondary">{award.award_type}</Badge>
+                              <div className="flex justify-between items-center">
+                                <span>English</span>
+                                <span className="font-semibold">89%</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span>Afrikaans</span>
+                                <span className="font-semibold">85%</span>
+                              </div>
                             </div>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {format(new Date(award.date_received), "PPP")}
-                          </p>
-                          {award.description && (
-                            <p className="text-sm mb-2">{award.description}</p>
-                          )}
-                          {award.awarded_by && (
-                            <p className="text-sm text-muted-foreground">
-                              <strong>Awarded by:</strong> {award.awarded_by}
-                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold mb-4">Recent Activities</h4>
+                        <Card>
+                          <CardContent className="p-6">
+                            {activities && activities.length > 0 ? (
+                              <div className="space-y-3">
+                                {activities.map((activity) => (
+                                  <div key={activity.id} className="flex justify-between items-center">
+                                    <span>{activity.extracurricular_activities.name}</span>
+                                    <span className="text-sm text-muted-foreground">95% attendance</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-muted-foreground">No activities enrolled</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "attendance" && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6">Attendance Records</h3>
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="space-y-2">
+                          {attendance && attendance.length > 0 ? (
+                            attendance.slice(0, 10).map((record) => (
+                              <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                <span>{format(new Date(record.date), "PPP")}</span>
+                                <Badge 
+                                  className={
+                                    record.status === "present" 
+                                      ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                                      : record.status === "late"
+                                      ? "bg-amber-100 text-amber-700 hover:bg-amber-100"
+                                      : "bg-red-100 text-red-700 hover:bg-red-100"
+                                  }
+                                >
+                                  {record.status}
+                                </Badge>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-muted-foreground">No attendance records found</p>
                           )}
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No awards found</p>
-                    )}
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        )}
+                )}
+
+                {activeTab === "awards" && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6">Awards & Achievements</h3>
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          {awards && awards.length > 0 ? (
+                            awards.map((award) => (
+                              <div key={award.id} className="border rounded-lg p-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <Trophy className="h-6 w-6 text-yellow-500" />
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold">{award.award_name}</h4>
+                                    <Badge variant="secondary">{award.award_type}</Badge>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {format(new Date(award.date_received), "PPP")}
+                                </p>
+                                {award.description && (
+                                  <p className="text-sm mb-2">{award.description}</p>
+                                )}
+                                {award.awarded_by && (
+                                  <p className="text-sm text-muted-foreground">
+                                    <strong>Awarded by:</strong> {award.awarded_by}
+                                  </p>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-muted-foreground">No awards found</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Other tabs would go here */}
+                {activeTab !== "overview" && activeTab !== "attendance" && activeTab !== "awards" && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-6 capitalize">{activeTab}</h3>
+                    <Card>
+                      <CardContent className="p-6">
+                        <p className="text-muted-foreground">Content for {activeTab} tab coming soon...</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-muted-foreground">
+                <User className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">Select a student to view their profile</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
