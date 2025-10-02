@@ -58,7 +58,7 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="flex items-center justify-center h-16 gap-3 cursor-pointer" onClick={() => navigate("/")}>
             <Logo className="h-10" />
             <span className="text-xl font-semibold text-primary">
-              Ailaikit School Management
+              School Management System
             </span>
           </div>
         </div>
