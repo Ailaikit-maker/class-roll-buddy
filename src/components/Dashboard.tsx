@@ -60,15 +60,6 @@ const Dashboard = () => {
       color: "bg-warning text-warning-foreground"
     },
     {
-      id: "finance",
-      title: "Finance",
-      description: "Comprehensive finance dashboard and analytics",
-      icon: DollarSign,
-      path: "/finance",
-      available: true,
-      color: "bg-emerald text-emerald-foreground"
-    },
-    {
       id: "activities",
       title: "Extracurricular Activities",
       description: "Manage extracurricular activities and enrollments",
@@ -160,6 +151,15 @@ const Dashboard = () => {
       path: "/staff-admin",
       available: true,
       color: "bg-slate text-slate-foreground"
+    },
+    {
+      id: "finance",
+      title: "Finance",
+      description: "Comprehensive finance dashboard and analytics",
+      icon: DollarSign,
+      path: "/finance",
+      available: true,
+      color: "bg-emerald text-emerald-foreground"
     }
   ];
 
