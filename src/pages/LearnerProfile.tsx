@@ -148,7 +148,7 @@ const LearnerProfile = () => {
               </TabsTrigger>
               <TabsTrigger value="activities">
                 <Activity className="h-4 w-4 mr-2" />
-                Activities
+                Extracurricular
               </TabsTrigger>
               <TabsTrigger value="awards">
                 <Trophy className="h-4 w-4 mr-2" />
