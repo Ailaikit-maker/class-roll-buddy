@@ -203,18 +203,26 @@ const Dashboard = () => {
       <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
-            {mainModules.filter(m => m.available).map((module) => {
+            {mainModules.map((module) => {
               const IconComponent = module.icon;
               return (
                 <Button
                   key={module.id}
                   variant="ghost"
                   size="sm"
-                  className="flex items-center gap-2 whitespace-nowrap hover:bg-primary/10 transition-colors"
-                  onClick={() => navigate(module.path)}
+                  className={`flex items-center gap-2 whitespace-nowrap transition-colors ${
+                    module.available 
+                      ? "hover:bg-primary/10 cursor-pointer" 
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                  onClick={() => module.available && navigate(module.path)}
+                  disabled={!module.available}
                 >
                   <IconComponent className="h-4 w-4" />
                   <span className="text-sm">{module.title}</span>
+                  {!module.available && (
+                    <span className="text-xs bg-muted px-1.5 py-0.5 rounded">Soon</span>
+                  )}
                 </Button>
               );
             })}
