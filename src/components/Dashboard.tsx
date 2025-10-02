@@ -135,6 +135,15 @@ const Dashboard = () => {
 
   const managementTools = [
     {
+      id: "timetables",
+      title: "Timetables",
+      description: "AI-powered timetable generation and management",
+      icon: Calendar,
+      path: "/timetables",
+      available: true,
+      color: "bg-violet text-violet-foreground"
+    },
+    {
       id: "classes",
       title: "Classes",
       description: "Hierarchical class management by teacher",

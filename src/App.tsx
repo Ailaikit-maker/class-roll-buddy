@@ -11,6 +11,7 @@ import Activities from "./pages/Activities";
 import Awards from "./pages/Awards";
 import Assignments from "./pages/Assignments";
 import DataHub from "./pages/DataHub";
+import Timetables from "./pages/Timetables";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/awards" element={<Awards />} />
           <Route path="/assignments" element={<Assignments />} />
           <Route path="/data-hub" element={<DataHub />} />
+          <Route path="/timetables" element={<Timetables />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
