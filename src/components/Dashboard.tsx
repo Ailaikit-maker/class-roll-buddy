@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   Calendar, 
@@ -16,9 +17,35 @@ import {
   Activity
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  const { data: activities } = useQuery({
+    queryKey: ["extracurricular-activities"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("extracurricular_activities")
+        .select("*, learner_activities(count)")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: enrollmentStats } = useQuery({
+    queryKey: ["enrollment-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("learner_activities")
+        .select("status")
+        .eq("status", "active");
+      if (error) throw error;
+      return data?.length || 0;
+    },
+  });
 
   const mainModules = [
     {
@@ -200,6 +227,65 @@ const Dashboard = () => {
           <p className="text-lg text-gray-600">
             Your comprehensive educational administration platform
           </p>
+        </div>
+
+        {/* Extracurricular Activities Featured Block */}
+        <div className="mb-12">
+          <Card className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0 shadow-xl overflow-hidden">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <Activity className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl mb-1">Extracurricular Activities</CardTitle>
+                    <CardDescription className="text-white/80">
+                      Manage sports, clubs, and enrichment programs
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => navigate("/activities")}
+                  className="bg-white text-violet-600 hover:bg-white/90"
+                >
+                  Manage Activities
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/80 text-sm">Total Activities</span>
+                    <Trophy className="h-5 w-5 text-yellow-300" />
+                  </div>
+                  <p className="text-3xl font-bold">{activities?.length || 0}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/80 text-sm">Active Enrollments</span>
+                    <Users className="h-5 w-5 text-green-300" />
+                  </div>
+                  <p className="text-3xl font-bold">{enrollmentStats || 0}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/80 text-sm">Popular Activities</span>
+                    <BarChart3 className="h-5 w-5 text-blue-300" />
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {activities?.slice(0, 3).map((activity) => (
+                      <Badge key={activity.id} variant="secondary" className="bg-white/20 text-white border-0 text-xs">
+                        {activity.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Main Modules Grid */}
