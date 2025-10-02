@@ -70,9 +70,9 @@ const Dashboard = () => {
     },
     {
       id: "activities",
-      title: "Activities",
+      title: "Extracurricular Activities",
       description: "Manage extracurricular activities and enrollments",
-      icon: Building2,
+      icon: Activity,
       path: "/activities",
       available: true,
       color: "bg-cyan text-cyan-foreground"
