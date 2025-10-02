@@ -17,6 +17,7 @@ import Classes from "./pages/Classes";
 import StaffAdmin from "./pages/StaffAdmin";
 import Disciplinary from "./pages/Disciplinary";
 import ParentCommunication from "./pages/ParentCommunication";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/awards" element={<Awards />} />
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/data-hub" element={<DataHub />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/timetables" element={<Timetables />} />
             <Route path="/classes" element={<Classes />} />
           <Route path="/staff-admin" element={<StaffAdmin />} />
