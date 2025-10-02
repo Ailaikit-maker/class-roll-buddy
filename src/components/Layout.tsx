@@ -29,7 +29,7 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
 
   const mainModules = [
-    { id: "home", title: "Home", icon: Users, path: "/", available: true },
+    { id: "home", title: "Dashboard", icon: Users, path: "/", available: true },
     { id: "attendance", title: "Attendance", icon: Users, path: "/register", available: true },
     { id: "learner-profile", title: "Learner Profile", icon: GraduationCap, path: "/learner-profile", available: true },
     { id: "disciplinary", title: "Disciplinary", icon: AlertTriangle, path: "/disciplinary", available: true },
