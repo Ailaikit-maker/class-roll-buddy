@@ -56,7 +56,7 @@ const Dashboard = () => {
       description: "Student intervention tracking and automated reporting",
       icon: AlertTriangle,
       path: "/disciplinary",
-      available: false,
+      available: true,
       color: "bg-warning text-warning-foreground"
     },
     {
