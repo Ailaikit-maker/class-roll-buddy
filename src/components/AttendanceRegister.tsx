@@ -3,10 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Logo from '@/components/Logo';
-import { Calendar, AlertTriangle, Users, Clock } from 'lucide-react';
+import { Download, Camera, Plus, Search } from 'lucide-react';
 
 interface Child {
   id: string;
@@ -14,39 +15,28 @@ interface Child {
   grade: string;
 }
 
+type AttendanceStatus = 'present' | 'late' | 'absent' | 'excused';
+
 interface AttendanceRecord {
   id?: string;
   child_id: string;
   date: string;
-  is_present: boolean;
-}
-
-interface Escalation {
-  id: string;
-  child_id: string;
-  escalation_type: string;
-  absence_count: number;
-  period_start: string;
-  period_end: string;
-  escalated_at: string;
-  resolved: boolean;
-  children: {
-    name: string;
-    grade: string;
-  };
+  status: AttendanceStatus;
 }
 
 const AttendanceRegister = () => {
   const [children, setChildren] = useState<Child[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
-  const [escalations, setEscalations] = useState<Escalation[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterGrade, setFilterGrade] = useState('all');
+  const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentGrade, setNewStudentGrade] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     fetchChildren();
-    fetchEscalations();
   }, []);
 
   useEffect(() => {
@@ -89,46 +79,20 @@ const AttendanceRegister = () => {
     }
   };
 
-  const fetchEscalations = async () => {
-    const { data, error } = await supabase
-      .from('escalations')
-      .select(`
-        *,
-        children (name, grade)
-      `)
-      .eq('resolved', false)
-      .order('escalated_at', { ascending: false });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch escalations",
-        variant: "destructive",
-      });
-    } else {
-      setEscalations(data || []);
-    }
-  };
-
-  const isChildPresent = (childId: string) => {
+  const getChildStatus = (childId: string): AttendanceStatus => {
     const record = attendanceRecords.find(r => r.child_id === childId);
-    return record ? record.is_present : true; // Default to present
+    return record?.status || 'present';
   };
 
-  const toggleAttendance = async (childId: string, isPresent: boolean) => {
+  const updateAttendanceStatus = async (childId: string, status: AttendanceStatus) => {
     setLoading(true);
     
-    // Check if record exists
     const existingRecord = attendanceRecords.find(r => r.child_id === childId);
     
     if (existingRecord) {
-      // Update existing record
       const { error } = await supabase
         .from('attendance_records')
-        .update({
-          is_present: isPresent,
-          marked_absent_at: !isPresent ? new Date().toISOString() : null
-        })
+        .update({ status })
         .eq('id', existingRecord.id);
 
       if (error) {
@@ -139,21 +103,18 @@ const AttendanceRegister = () => {
         });
       } else {
         await fetchAttendanceForDate();
-        await fetchEscalations(); // Refresh escalations
         toast({
           title: "Success",
-          description: "Attendance updated successfully",
+          description: "Attendance updated",
         });
       }
     } else {
-      // Create new record
       const { error } = await supabase
         .from('attendance_records')
         .insert({
           child_id: childId,
           date: currentDate,
-          is_present: isPresent,
-          marked_absent_at: !isPresent ? new Date().toISOString() : null
+          status
         });
 
       if (error) {
@@ -164,10 +125,9 @@ const AttendanceRegister = () => {
         });
       } else {
         await fetchAttendanceForDate();
-        await fetchEscalations(); // Refresh escalations
         toast({
           title: "Success",
-          description: "Attendance recorded successfully",
+          description: "Attendance recorded",
         });
       }
     }
@@ -175,154 +135,227 @@ const AttendanceRegister = () => {
     setLoading(false);
   };
 
-  const resolveEscalation = async (escalationId: string) => {
+  const addNewStudent = async () => {
+    if (!newStudentName || !newStudentGrade) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase
-      .from('escalations')
-      .update({
-        resolved: true,
-        resolved_at: new Date().toISOString()
-      })
-      .eq('id', escalationId);
+      .from('children')
+      .insert({
+        name: newStudentName,
+        grade: newStudentGrade
+      });
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to resolve escalation",
+        description: "Failed to add student",
         variant: "destructive",
       });
     } else {
-      await fetchEscalations();
+      await fetchChildren();
+      setNewStudentName('');
+      setNewStudentGrade('');
       toast({
         title: "Success",
-        description: "Escalation resolved",
+        description: "Student added successfully",
       });
     }
   };
 
-  const presentCount = children.filter(child => isChildPresent(child.id)).length;
-  const absentCount = children.length - presentCount;
+  const statusCounts = {
+    present: attendanceRecords.filter(r => r.status === 'present').length,
+    late: attendanceRecords.filter(r => r.status === 'late').length,
+    absent: attendanceRecords.filter(r => r.status === 'absent').length,
+    excused: attendanceRecords.filter(r => r.status === 'excused').length,
+  };
+
+  const filteredChildren = children.filter(child => {
+    const matchesSearch = child.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesGrade = filterGrade === 'all' || child.grade === filterGrade;
+    return matchesSearch && matchesGrade;
+  });
+
+  const uniqueGrades = Array.from(new Set(children.map(c => c.grade))).sort();
+
+  const getStatusBadgeVariant = (status: AttendanceStatus) => {
+    switch (status) {
+      case 'present': return 'default';
+      case 'late': return 'secondary';
+      case 'absent': return 'destructive';
+      case 'excused': return 'outline';
+      default: return 'default';
+    }
+  };
+
+  const getStatusColor = (status: AttendanceStatus) => {
+    switch (status) {
+      case 'present': return 'bg-green-100 text-green-800';
+      case 'late': return 'bg-yellow-100 text-yellow-800';
+      case 'absent': return 'bg-red-100 text-red-800';
+      case 'excused': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background p-6">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="flex justify-center mb-4">
           <Logo className="h-16" />
         </div>
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-primary mb-2">Attendance Register</h1>
-        </div>
-
-        {/* Date Selector and Stats */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            <input
-              type="date"
-              value={currentDate}
-              onChange={(e) => setCurrentDate(e.target.value)}
-              className="px-3 py-2 border border-input rounded-md bg-background"
-            />
+        
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-primary mb-1">Attendance Register</h1>
+            <p className="text-muted-foreground">Track and manage student attendance</p>
           </div>
-          
-          <div className="flex gap-4">
-            <Badge variant="secondary" className="text-lg px-4 py-2">
-              <Users className="h-4 w-4 mr-2" />
-              Present: {presentCount}
-            </Badge>
-            <Badge variant="destructive" className="text-lg px-4 py-2">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Absent: {absentCount}
-            </Badge>
+          <div className="flex gap-2">
+            <Button variant="default" className="bg-green-600 hover:bg-green-700">
+              <Download className="h-4 w-4 mr-2" />
+              Export Register
+            </Button>
+            <Button variant="default" className="bg-blue-600 hover:bg-blue-700">
+              <Camera className="h-4 w-4 mr-2" />
+              AI Face Recognition
+            </Button>
           </div>
         </div>
 
-        {/* Escalation Alerts */}
-        {escalations.length > 0 && (
-          <Card className="mb-6 border-destructive">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertTriangle className="h-5 w-5" />
-                Attendance Escalations ({escalations.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {escalations.map((escalation) => (
-                  <div key={escalation.id} className="flex items-center justify-between p-3 bg-destructive/10 rounded-lg">
-                    <div>
-                      <p className="font-semibold">{escalation.children.name} ({escalation.children.grade})</p>
-                      <p className="text-sm text-muted-foreground">
-                        {escalation.escalation_type === 'monthly' ? 'Monthly' : 'Annual'} escalation: 
-                        {escalation.absence_count} absences
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Period: {new Date(escalation.period_start).toLocaleDateString()} - {new Date(escalation.period_end).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Button
-                      onClick={() => resolveEscalation(escalation.id)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Resolve
-                    </Button>
-                  </div>
-                ))}
-              </div>
+        {/* Status Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="pt-6">
+              <div className="text-4xl font-bold text-green-700">{statusCounts.present}</div>
+              <div className="text-green-600 font-medium mt-1">Present</div>
             </CardContent>
           </Card>
-        )}
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardContent className="pt-6">
+              <div className="text-4xl font-bold text-yellow-700">{statusCounts.late}</div>
+              <div className="text-yellow-600 font-medium mt-1">Late</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-red-50 border-red-200">
+            <CardContent className="pt-6">
+              <div className="text-4xl font-bold text-red-700">{statusCounts.absent}</div>
+              <div className="text-red-600 font-medium mt-1">Absent</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="text-4xl font-bold text-blue-700">{statusCounts.excused}</div>
+              <div className="text-blue-600 font-medium mt-1">Excused</div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Attendance Register */}
-        <Card>
+        {/* Add New Student */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Daily Attendance - {new Date(currentDate).toLocaleDateString('en-GB', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </CardTitle>
+            <CardTitle>Add New Student</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3">
-              {children.map((child) => {
-                const isPresent = isChildPresent(child.id);
-                return (
-                  <div key={child.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
-                    <div className="flex items-center gap-4">
-                      <div className="w-8 text-center text-sm text-muted-foreground">
-                        {children.indexOf(child) + 1}
-                      </div>
-                      <div>
-                        <p className="font-medium">{child.name}</p>
-                        <p className="text-sm text-muted-foreground">{child.grade}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <Badge variant={isPresent ? "secondary" : "destructive"}>
-                        {isPresent ? "Present" : "Absent"}
-                      </Badge>
-                      
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm">Mark Absent:</label>
-                        <Checkbox
-                          checked={!isPresent}
-                          onCheckedChange={(checked) => toggleAttendance(child.id, !checked)}
-                          disabled={loading}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex gap-4">
+              <Input
+                placeholder="Student Name"
+                value={newStudentName}
+                onChange={(e) => setNewStudentName(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                placeholder="Class (e.g., Grade 5A)"
+                value={newStudentGrade}
+                onChange={(e) => setNewStudentGrade(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={addNewStudent} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Search and Filter */}
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterGrade} onValueChange={setFilterGrade}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Classes</SelectItem>
+              {uniqueGrades.map((grade) => (
+                <SelectItem key={grade} value={grade}>
+                  {grade}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Student List */}
+        <div className="space-y-3">
+          {filteredChildren.map((child) => {
+            const status = getChildStatus(child.id);
+            return (
+              <Card key={child.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold text-lg">{child.name}</div>
+                      <div className="text-sm text-muted-foreground">{child.grade}</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge className={getStatusColor(status)}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </Badge>
+                      <Select
+                        value={status}
+                        onValueChange={(value) => updateAttendanceStatus(child.id, value as AttendanceStatus)}
+                        disabled={loading}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="present">Present</SelectItem>
+                          <SelectItem value="late">Late</SelectItem>
+                          <SelectItem value="absent">Absent</SelectItem>
+                          <SelectItem value="excused">Excused</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {filteredChildren.length === 0 && (
+          <Card>
+            <CardContent className="text-center py-12">
+              <p className="text-muted-foreground">No students found</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
