@@ -14,6 +14,10 @@ import {
   Trophy,
   Activity,
   FolderOpen,
+  ClipboardList,
+  Database,
+  BarChart3,
+  MessageSquare,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -37,6 +41,10 @@ const Layout = ({ children }: LayoutProps) => {
   ];
 
   const managementTools = [
+    { id: "planning", title: "Planning", icon: ClipboardList, path: "/planning", available: false },
+    { id: "data-hub", title: "Data Hub", icon: Database, path: "/data-hub", available: true },
+    { id: "reports", title: "Reports", icon: BarChart3, path: "/reports", available: false },
+    { id: "internal-communication", title: "Internal Communication", icon: MessageSquare, path: "/internal-communication", available: false },
     { id: "timetables", title: "Timetables", icon: Calendar, path: "/timetables", available: true },
     { id: "classes", title: "Classes", icon: GraduationCap, path: "/classes", available: true },
     { id: "staff-admin", title: "Staff Admin", icon: UserCog, path: "/staff-admin", available: true },
