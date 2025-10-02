@@ -158,7 +158,7 @@ const Dashboard = () => {
       description: "Comprehensive staff management system",
       icon: UserCog,
       path: "/staff-admin",
-      available: false,
+      available: true,
       color: "bg-slate text-slate-foreground"
     }
   ];

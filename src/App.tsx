@@ -13,6 +13,7 @@ import Assignments from "./pages/Assignments";
 import DataHub from "./pages/DataHub";
 import Timetables from "./pages/Timetables";
 import Classes from "./pages/Classes";
+import StaffAdmin from "./pages/StaffAdmin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/data-hub" element={<DataHub />} />
           <Route path="/timetables" element={<Timetables />} />
           <Route path="/classes" element={<Classes />} />
+          <Route path="/staff-admin" element={<StaffAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
