@@ -9,6 +9,7 @@ import Finance from "./pages/Finance";
 import LearnerProfile from "./pages/LearnerProfile";
 import Activities from "./pages/Activities";
 import Awards from "./pages/Awards";
+import Assignments from "./pages/Assignments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/learner-profile" element={<LearnerProfile />} />
           <Route path="/activities" element={<Activities />} />
           <Route path="/awards" element={<Awards />} />
+          <Route path="/assignments" element={<Assignments />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

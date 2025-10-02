@@ -106,10 +106,19 @@ const Dashboard = () => {
       id: "awards",
       title: "Awards",
       description: "Track learner achievements and awards",
-      icon: AlertTriangle,
+      icon: Trophy,
       path: "/awards",
       available: true,
       color: "bg-warning text-warning-foreground"
+    },
+    {
+      id: "assignments",
+      title: "AI Assignments",
+      description: "Create, submit, and grade assignments with AI",
+      icon: FileText,
+      path: "/assignments",
+      available: true,
+      color: "bg-violet text-violet-foreground"
     },
     {
       id: "reports",

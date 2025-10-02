@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          child_id: string | null
+          created_at: string
+          description: string
+          due_date: string
+          grade: string | null
+          id: string
+          instructions: string | null
+          title: string
+          total_points: number
+          updated_at: string
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string
+          description: string
+          due_date: string
+          grade?: string | null
+          id?: string
+          instructions?: string | null
+          title: string
+          total_points?: number
+          updated_at?: string
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string
+          grade?: string | null
+          id?: string
+          instructions?: string | null
+          title?: string
+          total_points?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           child_id: string
@@ -229,6 +276,38 @@ export type Database = {
         }
         Relationships: []
       }
+      grading_rubrics: {
+        Row: {
+          assignment_id: string
+          criteria: string
+          description: string | null
+          id: string
+          points: number
+        }
+        Insert: {
+          assignment_id: string
+          criteria: string
+          description?: string | null
+          id?: string
+          points: number
+        }
+        Update: {
+          assignment_id?: string
+          criteria?: string
+          description?: string | null
+          id?: string
+          points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_rubrics_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hospitals: {
         Row: {
           address: string | null
@@ -368,6 +447,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "school_fees_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          ai_detection_details: Json | null
+          ai_usage_detected: boolean | null
+          assignment_id: string
+          child_id: string
+          feedback: string | null
+          grade: number | null
+          graded_at: string | null
+          graded_by: string | null
+          id: string
+          submission_file_url: string | null
+          submission_text: string
+          submitted_at: string
+        }
+        Insert: {
+          ai_detection_details?: Json | null
+          ai_usage_detected?: boolean | null
+          assignment_id: string
+          child_id: string
+          feedback?: string | null
+          grade?: number | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          submission_file_url?: string | null
+          submission_text: string
+          submitted_at?: string
+        }
+        Update: {
+          ai_detection_details?: Json | null
+          ai_usage_detected?: boolean | null
+          assignment_id?: string
+          child_id?: string
+          feedback?: string | null
+          grade?: number | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          submission_file_url?: string | null
+          submission_text?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_child_id_fkey"
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"

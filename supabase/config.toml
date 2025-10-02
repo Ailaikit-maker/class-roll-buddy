@@ -1,1 +1,7 @@
 project_id = "gxdmampcpsyfaipaqxiz"
+
+[functions.grade-assignment]
+verify_jwt = false
+
+[functions.detect-ai-usage]
+verify_jwt = false
