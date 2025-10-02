@@ -189,61 +189,48 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Navigation */}
-      <header className="bg-white shadow-sm border-b">
+      {/* Simplified Header */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-2">
-                <Logo className="h-10" />
-                <span className="text-xl font-semibold text-primary">Ailaikit School Management</span>
-              </div>
-              
-              <nav className="hidden md:flex space-x-1">
-                {mainModules.slice(0, 7).map((module) => {
-                  const IconComponent = module.icon;
-                  return (
-                    <Button
-                      key={module.id}
-                      variant={module.id === "dashboard" ? "default" : "ghost"}
-                      size="sm"
-                      className="flex items-center space-x-2"
-                      onClick={() => module.available && navigate(module.path)}
-                      disabled={!module.available}
-                    >
-                      <IconComponent className="h-4 w-4" />
-                      <span>{module.title}</span>
-                    </Button>
-                  );
-                })}
-              </nav>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground mr-2">Export:</span>
-              {exportOptions.map((option) => {
-                const IconComponent = option.icon;
-                return (
-                  <Button key={option.label} variant="ghost" size="sm">
-                    <IconComponent className="h-4 w-4 mr-1" />
-                    {option.label}
-                  </Button>
-                );
-              })}
-            </div>
+          <div className="flex items-center justify-center h-16 gap-3">
+            <Logo className="h-10" />
+            <span className="text-xl font-semibold text-primary">Ailaikit School Management</span>
           </div>
         </div>
       </header>
 
+      {/* Compact Navigation Banner */}
+      <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
+            {mainModules.filter(m => m.available).map((module) => {
+              const IconComponent = module.icon;
+              return (
+                <Button
+                  key={module.id}
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 whitespace-nowrap hover:bg-primary/10 transition-colors"
+                  onClick={() => navigate(module.path)}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span className="text-sm">{module.title}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to Ailaikit School Management
+            Welcome to Your Dashboard
           </h1>
           <p className="text-lg text-gray-600">
-            Your comprehensive educational administration platform
+            Quick access to all your school management tools
           </p>
         </div>
 
