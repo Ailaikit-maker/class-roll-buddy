@@ -1,31 +1,14 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Logo from "@/components/Logo";
-import { Trophy, Plus, Edit, Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GraduationCap, Calendar, Star, Calculator, BookOpen, Trophy, Edit, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Awards = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingAward, setEditingAward] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    child_id: "",
-    award_name: "",
-    award_type: "",
-    description: "",
-    date_received: "",
-    awarded_by: "",
-  });
 
   const { data: children } = useQuery({
     queryKey: ["children"],
@@ -39,7 +22,7 @@ const Awards = () => {
     },
   });
 
-  const { data: awards, isLoading } = useQuery({
+  const { data: awards } = useQuery({
     queryKey: ["all-awards"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,267 +40,178 @@ const Awards = () => {
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from("awards")
-        .insert([data]);
-      if (error) throw error;
+  // Mock data for award categories
+  const awardCategories = [
+    {
+      id: 1,
+      title: "Academic Excellence",
+      icon: <GraduationCap className="h-12 w-12 text-white" />,
+      criteria: "Overall average ≥ 90%",
+      category: "Academic",
+      bgColor: "bg-blue-500",
+      qualifiedStudents: ["Sarah Davis", "Olivia Wilson"],
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-awards"] });
-      queryClient.invalidateQueries({ queryKey: ["awards"] });
-      toast({ title: "Award created successfully" });
-      setIsDialogOpen(false);
-      resetForm();
+    {
+      id: 2,
+      title: "Perfect Attendance",
+      icon: <Calendar className="h-12 w-12 text-white" />,
+      criteria: "Attendance rate ≥ 98%",
+      category: "Attendance",
+      bgColor: "bg-emerald-500",
+      qualifiedStudents: ["Emma Johnson", "Sarah Davis"],
     },
-    onError: (error) => {
-      toast({ title: "Error creating award", description: error.message, variant: "destructive" });
+    {
+      id: 3,
+      title: "Outstanding Behavior",
+      icon: <Star className="h-12 w-12 text-white" />,
+      criteria: "Behavior points ≥ 95",
+      category: "Behavior",
+      bgColor: "bg-amber-500",
+      qualifiedStudents: ["Emma Johnson", "Sarah Davis", "Olivia Wilson"],
     },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase
-        .from("awards")
-        .update(data)
-        .eq("id", id);
-      if (error) throw error;
+    {
+      id: 4,
+      title: "Mathematics Excellence",
+      icon: <Calculator className="h-12 w-12 text-white" />,
+      criteria: "Mathematics average ≥ 90%",
+      category: "Academic",
+      bgColor: "bg-purple-500",
+      qualifiedStudents: ["Emma Johnson", "Sarah Davis", "Olivia Wilson"],
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-awards"] });
-      queryClient.invalidateQueries({ queryKey: ["awards"] });
-      toast({ title: "Award updated successfully" });
-      setIsDialogOpen(false);
-      resetForm();
+    {
+      id: 5,
+      title: "English Excellence",
+      icon: <BookOpen className="h-12 w-12 text-white" />,
+      criteria: "English average ≥ 90%",
+      category: "Academic",
+      bgColor: "bg-indigo-500",
+      qualifiedStudents: ["Sarah Davis", "Olivia Wilson"],
     },
-    onError: (error) => {
-      toast({ title: "Error updating award", description: error.message, variant: "destructive" });
+    {
+      id: 6,
+      title: "Extracurricular Champion",
+      icon: <Trophy className="h-12 w-12 text-white" />,
+      criteria: "Active in 2+ activities",
+      category: "Extracurricular",
+      bgColor: "bg-orange-500",
+      qualifiedStudents: ["Emma Johnson", "John Smith", "Sarah Davis"],
+      moreCount: 2,
     },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("awards")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-awards"] });
-      queryClient.invalidateQueries({ queryKey: ["awards"] });
-      toast({ title: "Award deleted successfully" });
-    },
-    onError: (error) => {
-      toast({ title: "Error deleting award", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const resetForm = () => {
-    setFormData({
-      child_id: "",
-      award_name: "",
-      award_type: "",
-      description: "",
-      date_received: "",
-      awarded_by: "",
-    });
-    setEditingAward(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingAward) {
-      updateMutation.mutate({ id: editingAward.id, data: formData });
-    } else {
-      createMutation.mutate(formData);
-    }
-  };
-
-  const handleEdit = (award: any) => {
-    setEditingAward(award);
-    setFormData({
-      child_id: award.child_id,
-      award_name: award.award_name,
-      award_type: award.award_type,
-      description: award.description || "",
-      date_received: award.date_received,
-      awarded_by: award.awarded_by || "",
-    });
-    setIsDialogOpen(true);
-  };
+  ];
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Logo className="h-12" />
-            <h1 className="text-3xl font-bold text-primary">Awards & Achievements</h1>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Award
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingAward ? "Edit Award" : "Add New Award"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="child_id">Learner</Label>
-                  <Select
-                    value={formData.child_id}
-                    onValueChange={(value) => setFormData({ ...formData, child_id: value })}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select learner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {children?.map((child) => (
-                        <SelectItem key={child.id} value={child.id}>
-                          {child.name} - Grade {child.grade}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="award_name">Award Name</Label>
-                  <Input
-                    id="award_name"
-                    value={formData.award_name}
-                    onChange={(e) => setFormData({ ...formData, award_name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="award_type">Award Type</Label>
-                  <Input
-                    id="award_type"
-                    value={formData.award_type}
-                    onChange={(e) => setFormData({ ...formData, award_type: e.target.value })}
-                    placeholder="e.g., Academic, Sports, Arts"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="date_received">Date Received</Label>
-                  <Input
-                    id="date_received"
-                    type="date"
-                    value={formData.date_received}
-                    onChange={(e) => setFormData({ ...formData, date_received: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="awarded_by">Awarded By</Label>
-                  <Input
-                    id="awarded_by"
-                    value={formData.awarded_by}
-                    onChange={(e) => setFormData({ ...formData, awarded_by: e.target.value })}
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editingAward ? "Update" : "Create"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-foreground">Awards & Recognition</h1>
+          <p className="text-muted-foreground mt-1">
+            Student achievements, awards qualification and performance analytics
+          </p>
         </div>
 
-        {isLoading ? (
-          <p>Loading awards...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {awards && awards.length > 0 ? (
-              awards.map((award) => (
-                <Card key={award.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <Trophy className="h-6 w-6 text-yellow-500 mt-1" />
-                        <div>
-                          <CardTitle className="text-xl">{award.award_name}</CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {award.children.name} - Grade {award.children.grade}
-                          </p>
+        {/* Tabs and Action Buttons */}
+        <div className="flex items-center justify-between mb-6">
+          <Tabs defaultValue="awards" className="w-full">
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="awards">Awards</TabsTrigger>
+                <TabsTrigger value="top-performers">Top Performers</TabsTrigger>
+                <TabsTrigger value="individual-records">Individual Records</TabsTrigger>
+              </TabsList>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => toast({ title: "Edit mode activated" })}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Mode
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => toast({ title: "Exporting PDF..." })}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export PDF
+                </Button>
+              </div>
+            </div>
+
+            <TabsContent value="awards" className="mt-6">
+              {/* Award Category Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {awardCategories.map((category) => (
+                  <Card
+                    key={category.id}
+                    className={`${category.bgColor} border-none text-white overflow-hidden relative`}
+                  >
+                    <CardContent className="p-6">
+                      {/* Icon and Badge */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="bg-white/20 p-3 rounded-lg">
+                          {category.icon}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">
+                            {category.qualifiedStudents.length + (category.moreCount || 0)} Qualified
+                          </div>
+                          <div className="text-sm text-white/80">{category.category}</div>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleEdit(award)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            if (confirm("Are you sure you want to delete this award?")) {
-                              deleteMutation.mutate(award.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+
+                      {/* Title */}
+                      <h3 className="text-2xl font-bold mb-2">{category.title}</h3>
+
+                      {/* Criteria */}
+                      <p className="text-white/90 mb-4">{category.criteria}</p>
+
+                      {/* Qualified Students */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-white/90">Qualified Students:</p>
+                        {category.qualifiedStudents.map((student, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded"
+                          >
+                            {student}
+                          </div>
+                        ))}
+                        {category.moreCount && (
+                          <div className="text-right text-sm text-white/80 mt-2">
+                            +{category.moreCount} more students
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <strong>Type:</strong> {award.award_type}
-                      </div>
-                      <div className="text-sm">
-                        <strong>Date:</strong> {format(new Date(award.date_received), "PPP")}
-                      </div>
-                      {award.description && (
-                        <p className="text-sm text-muted-foreground">{award.description}</p>
-                      )}
-                      {award.awarded_by && (
-                        <div className="text-sm">
-                          <strong>Awarded by:</strong> {award.awarded_by}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="col-span-full">
-                <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No awards found. Create your first award!</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="top-performers" className="mt-6">
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-center text-muted-foreground">
+                    Top Performers view coming soon...
+                  </p>
                 </CardContent>
               </Card>
-            )}
-          </div>
-        )}
+            </TabsContent>
+
+            <TabsContent value="individual-records" className="mt-6">
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-center text-muted-foreground">
+                    Individual Records view coming soon...
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
