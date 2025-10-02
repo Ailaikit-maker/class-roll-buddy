@@ -77,14 +77,14 @@ const Assignments = () => {
                 return (
                   <Card key={assignment.id} className="relative">
                     <CardHeader>
-                      <div className="flex items-start justify-between mb-2">
-                        <CardTitle className="text-xl">{assignment.title}</CardTitle>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <CardTitle className="text-lg leading-tight">{assignment.title}</CardTitle>
+                        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 shrink-0 border-0">
                           Published
                         </Badge>
                       </div>
-                      <CardDescription className="text-sm">
-                        {assignment.grade || "General"} • Grade {assignment.grade || "5"}
+                      <CardDescription className="text-sm text-muted-foreground">
+                        Mathematics • Grade {assignment.grade || "5"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
