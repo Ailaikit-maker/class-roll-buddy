@@ -33,7 +33,7 @@ const Layout = ({ children }: LayoutProps) => {
     { id: "activities", title: "Activities", icon: Activity, path: "/activities", available: true },
     { id: "awards", title: "Awards", icon: Trophy, path: "/awards", available: true },
     { id: "assignments", title: "Assignments", icon: FileText, path: "/assignments", available: true },
-    { id: "data-hub", title: "Data Hub", icon: FolderOpen, path: "/data-hub", available: true },
+    { id: "parent-communication", title: "Parent Communication", icon: MessageCircle, path: "/parent-communication", available: true },
   ];
 
   const managementTools = [

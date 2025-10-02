@@ -16,6 +16,7 @@ import Timetables from "./pages/Timetables";
 import Classes from "./pages/Classes";
 import StaffAdmin from "./pages/StaffAdmin";
 import Disciplinary from "./pages/Disciplinary";
+import ParentCommunication from "./pages/ParentCommunication";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,9 +39,10 @@ const App = () => (
             <Route path="/data-hub" element={<DataHub />} />
             <Route path="/timetables" element={<Timetables />} />
             <Route path="/classes" element={<Classes />} />
-            <Route path="/staff-admin" element={<StaffAdmin />} />
-            <Route path="/disciplinary" element={<Disciplinary />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/staff-admin" element={<StaffAdmin />} />
+          <Route path="/disciplinary" element={<Disciplinary />} />
+          <Route path="/parent-communication" element={<ParentCommunication />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

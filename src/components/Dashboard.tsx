@@ -119,7 +119,7 @@ const Dashboard = () => {
       description: "Multi-channel messaging with WhatsApp and email",
       icon: MessageCircle,
       path: "/parent-communication",
-      available: false,
+      available: true,
       color: "bg-pink text-pink-foreground"
     },
     {
