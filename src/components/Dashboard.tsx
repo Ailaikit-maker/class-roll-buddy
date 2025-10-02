@@ -15,7 +15,8 @@ import {
   Download,
   BarChart3,
   Trophy,
-  Activity
+  Activity,
+  FolderOpen
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -120,6 +121,15 @@ const Dashboard = () => {
       path: "/assignments",
       available: true,
       color: "bg-violet text-violet-foreground"
+    },
+    {
+      id: "data-hub",
+      title: "Data Hub",
+      description: "Central document repository with lessons and resources",
+      icon: FolderOpen,
+      path: "/data-hub",
+      available: true,
+      color: "bg-blue text-blue-foreground"
     },
     {
       id: "reports",
