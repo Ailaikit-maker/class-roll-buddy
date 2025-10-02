@@ -65,7 +65,7 @@ const AttendanceRegister = () => {
   const fetchAttendanceForDate = async () => {
     const { data, error } = await supabase
       .from('attendance_records')
-      .select('*')
+      .select('id, child_id, date, status')
       .eq('date', currentDate);
 
     if (error) {
@@ -75,7 +75,7 @@ const AttendanceRegister = () => {
         variant: "destructive",
       });
     } else {
-      setAttendanceRecords(data || []);
+      setAttendanceRecords((data as any) || []);
     }
   };
 

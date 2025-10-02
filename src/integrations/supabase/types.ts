@@ -69,6 +69,7 @@ export type Database = {
           id: string
           is_present: boolean
           marked_absent_at: string | null
+          status: string
         }
         Insert: {
           child_id: string
@@ -77,6 +78,7 @@ export type Database = {
           id?: string
           is_present?: boolean
           marked_absent_at?: string | null
+          status?: string
         }
         Update: {
           child_id?: string
@@ -85,6 +87,7 @@ export type Database = {
           id?: string
           is_present?: boolean
           marked_absent_at?: string | null
+          status?: string
         }
         Relationships: [
           {
