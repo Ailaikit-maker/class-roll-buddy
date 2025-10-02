@@ -1,273 +1,205 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import Logo from "@/components/Logo";
-import { Plus, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Plus } from "lucide-react";
+
+interface TeamMember {
+  name: string;
+  grade: string;
+  position: string;
+}
+
+interface Activity {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  schedule: string;
+  coach: string;
+  memberCount: number;
+  teamMembers: TeamMember[];
+  colorClass: string;
+}
 
 const Activities = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingActivity, setEditingActivity] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    category: "",
-    instructor: "",
-    schedule: "",
-  });
+  const [activeTab, setActiveTab] = useState<"activities" | "events">("activities");
 
-  const { data: activities, isLoading } = useQuery({
-    queryKey: ["activities"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("extracurricular_activities")
-        .select("*")
-        .order("name");
-      if (error) throw error;
-      return data;
+  // Mock data with vibrant colors - in production, this would come from the database
+  const mockActivities: Activity[] = [
+    {
+      id: "1",
+      name: "Cricket",
+      category: "Sport",
+      description: "School cricket team for competitive matches",
+      schedule: "Tuesday & Thursday\n15:30 - 17:00",
+      coach: "Mr. Roberts",
+      memberCount: 3,
+      colorClass: "bg-emerald-500",
+      teamMembers: [
+        { name: "John Smith", grade: "Grade 5A", position: "Batsman" },
+        { name: "Michael Brown", grade: "Grade 5B", position: "Bowler" },
+        { name: "James Wilson", grade: "Grade 5B", position: "Wicket Keeper" }
+      ]
     },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from("extracurricular_activities")
-        .insert([data]);
-      if (error) throw error;
+    {
+      id: "2",
+      name: "Rugby",
+      category: "Sport",
+      description: "Rugby team for inter-school competitions",
+      schedule: "Monday & Wednesday\n15:30 - 17:00",
+      coach: "Mr. Thompson",
+      memberCount: 2,
+      colorClass: "bg-red-500",
+      teamMembers: [
+        { name: "David Lee", grade: "Grade 6A", position: "Forward" },
+        { name: "Alex Johnson", grade: "Grade 6B", position: "Back" }
+      ]
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast({ title: "Activity created successfully" });
-      setIsDialogOpen(false);
-      resetForm();
+    {
+      id: "3",
+      name: "Netball",
+      category: "Sport",
+      description: "Girls netball team",
+      schedule: "Tuesday & Friday\n15:30 - 17:00",
+      coach: "Mrs. Garcia",
+      memberCount: 2,
+      colorClass: "bg-pink-500",
+      teamMembers: [
+        { name: "Emma Johnson", grade: "Grade 5A", position: "Goal Shooter" },
+        { name: "Sarah Davis", grade: "Grade 5A", position: "Centre" }
+      ]
     },
-    onError: (error) => {
-      toast({ title: "Error creating activity", description: error.message, variant: "destructive" });
+    {
+      id: "4",
+      name: "Chess Club",
+      category: "Club",
+      description: "Strategic thinking and chess competitions",
+      schedule: "Wednesday\n14:00 - 15:00",
+      coach: "Mrs. Anderson",
+      memberCount: 2,
+      colorClass: "bg-slate-600",
+      teamMembers: [
+        { name: "Oliver Chen", grade: "Grade 6A", position: "" },
+        { name: "Sophie Williams", grade: "Grade 5B", position: "" }
+      ]
     },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase
-        .from("extracurricular_activities")
-        .update(data)
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast({ title: "Activity updated successfully" });
-      setIsDialogOpen(false);
-      resetForm();
-    },
-    onError: (error) => {
-      toast({ title: "Error updating activity", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("extracurricular_activities")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast({ title: "Activity deleted successfully" });
-    },
-    onError: (error) => {
-      toast({ title: "Error deleting activity", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      category: "",
-      instructor: "",
-      schedule: "",
-    });
-    setEditingActivity(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingActivity) {
-      updateMutation.mutate({ id: editingActivity.id, data: formData });
-    } else {
-      createMutation.mutate(formData);
+    {
+      id: "5",
+      name: "Drama Club",
+      category: "Club",
+      description: "Theatre arts and school productions",
+      schedule: "Thursday\n14:30 - 16:00",
+      coach: "Ms. Lee",
+      memberCount: 2,
+      colorClass: "bg-purple-600",
+      teamMembers: []
     }
-  };
+  ];
 
-  const handleEdit = (activity: any) => {
-    setEditingActivity(activity);
-    setFormData({
-      name: activity.name,
-      description: activity.description || "",
-      category: activity.category,
-      instructor: activity.instructor || "",
-      schedule: activity.schedule || "",
+  const handleAddEvent = () => {
+    toast({
+      title: "Add Event",
+      description: "Event creation form will be implemented"
     });
-    setIsDialogOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header with Tabs */}
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Logo className="h-12" />
-            <h1 className="text-3xl font-bold text-primary">Extracurricular Activities</h1>
+            <Button
+              variant={activeTab === "activities" ? "default" : "outline"}
+              onClick={() => setActiveTab("activities")}
+            >
+              Activities
+            </Button>
+            <Button
+              variant={activeTab === "events" ? "default" : "outline"}
+              onClick={() => setActiveTab("events")}
+            >
+              Events & Training
+            </Button>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Activity
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingActivity ? "Edit Activity" : "Add New Activity"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Activity Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g., Sports, Arts, Music"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="instructor">Instructor</Label>
-                  <Input
-                    id="instructor"
-                    value={formData.instructor}
-                    onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="schedule">Schedule</Label>
-                  <Input
-                    id="schedule"
-                    value={formData.schedule}
-                    onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-                    placeholder="e.g., Mondays & Wednesdays, 3:00 PM"
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editingActivity ? "Update" : "Create"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            onClick={handleAddEvent}
+            className="bg-amber-600 hover:bg-amber-700"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Event
+          </Button>
         </div>
 
-        {isLoading ? (
-          <p>Loading activities...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activities && activities.length > 0 ? (
-              activities.map((activity) => (
-                <Card key={activity.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-xl">{activity.name}</CardTitle>
-                        <Badge className="mt-2">{activity.category}</Badge>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleEdit(activity)}
+        {/* Activities Grid */}
+        {activeTab === "activities" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {mockActivities.map((activity) => (
+              <div
+                key={activity.id}
+                className={`${activity.colorClass} text-white rounded-lg p-6 shadow-lg`}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-1">{activity.name}</h3>
+                    <p className="text-white/90 text-sm">{activity.category}</p>
+                  </div>
+                  <div className="text-right text-sm">
+                    <div className="font-semibold">{activity.memberCount} Members</div>
+                    <div className="text-white/90">Coach: {activity.coach}</div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-white/90 text-sm mb-4">{activity.description}</p>
+
+                {/* Schedule */}
+                <div className="bg-white/20 rounded-lg p-4 mb-4">
+                  <h4 className="font-semibold mb-2 text-sm">Schedule</h4>
+                  <p className="text-sm whitespace-pre-line">{activity.schedule}</p>
+                </div>
+
+                {/* Team Members */}
+                {activity.teamMembers.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 text-sm">Team Members:</h4>
+                    <div className="space-y-2">
+                      {activity.teamMembers.map((member, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white/20 rounded-lg p-3 flex items-center justify-between"
                         >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            if (confirm("Are you sure you want to delete this activity?")) {
-                              deleteMutation.mutate(activity.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {activity.description && (
-                      <p className="text-sm text-muted-foreground mb-3">{activity.description}</p>
-                    )}
-                    <div className="space-y-2 text-sm">
-                      {activity.instructor && (
-                        <div>
-                          <strong>Instructor:</strong> {activity.instructor}
+                          <div>
+                            <div className="font-medium">{member.name}</div>
+                            <div className="text-sm text-white/80">{member.grade}</div>
+                          </div>
+                          {member.position && (
+                            <Badge className="bg-white/30 text-white hover:bg-white/40 border-0">
+                              {member.position}
+                            </Badge>
+                          )}
                         </div>
-                      )}
-                      {activity.schedule && (
-                        <div>
-                          <strong>Schedule:</strong> {activity.schedule}
-                        </div>
-                      )}
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="col-span-full">
-                <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No activities found. Create your first activity!</p>
-                </CardContent>
-              </Card>
-            )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
-      </div>
+
+        {/* Events & Training Tab */}
+        {activeTab === "events" && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">Events & Training content coming soon...</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
