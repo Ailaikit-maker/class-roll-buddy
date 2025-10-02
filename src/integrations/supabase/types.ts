@@ -49,6 +49,47 @@ export type Database = {
           },
         ]
       }
+      awards: {
+        Row: {
+          award_name: string
+          award_type: string
+          awarded_by: string | null
+          child_id: string
+          created_at: string
+          date_received: string
+          description: string | null
+          id: string
+        }
+        Insert: {
+          award_name: string
+          award_type: string
+          awarded_by?: string | null
+          child_id: string
+          created_at?: string
+          date_received: string
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          award_name?: string
+          award_type?: string
+          awarded_by?: string | null
+          child_id?: string
+          created_at?: string
+          date_received?: string
+          description?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "awards_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       children: {
         Row: {
           created_at: string
@@ -69,6 +110,50 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      disciplinary_records: {
+        Row: {
+          action_taken: string | null
+          child_id: string
+          created_at: string
+          description: string | null
+          id: string
+          incident_date: string
+          incident_type: string
+          severity: string
+          updated_at: string
+        }
+        Insert: {
+          action_taken?: string | null
+          child_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          incident_date: string
+          incident_type: string
+          severity: string
+          updated_at?: string
+        }
+        Update: {
+          action_taken?: string | null
+          child_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          incident_date?: string
+          incident_type?: string
+          severity?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disciplinary_records_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       escalations: {
         Row: {
@@ -110,6 +195,299 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extracurricular_activities: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          instructor: string | null
+          name: string
+          schedule: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          name: string
+          schedule?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          name?: string
+          schedule?: string | null
+        }
+        Relationships: []
+      }
+      hospitals: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          state: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          state?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          state?: string | null
+        }
+        Relationships: []
+      }
+      learner_activities: {
+        Row: {
+          activity_id: string
+          child_id: string
+          created_at: string
+          enrollment_date: string
+          id: string
+          status: string
+        }
+        Insert: {
+          activity_id: string
+          child_id: string
+          created_at?: string
+          enrollment_date?: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          activity_id?: string
+          child_id?: string
+          created_at?: string
+          enrollment_date?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learner_activities_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "extracurricular_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learner_activities_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      representatives: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          territory: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          territory?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          territory?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      school_fees: {
+        Row: {
+          academic_year: string
+          amount_paid: number
+          child_id: string
+          created_at: string
+          id: string
+          last_payment_date: string | null
+          payment_status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          amount_paid?: number
+          child_id: string
+          created_at?: string
+          id?: string
+          last_payment_date?: string | null
+          payment_status?: string
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          amount_paid?: number
+          child_id?: string
+          created_at?: string
+          id?: string
+          last_payment_date?: string | null
+          payment_status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_fees_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surgeons: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          hospital_id: string | null
+          id: string
+          name: string
+          specialty: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          hospital_id?: string | null
+          id?: string
+          name: string
+          specialty: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          hospital_id?: string | null
+          id?: string
+          name?: string
+          specialty?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surgeons_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surgical_cases: {
+        Row: {
+          booking_value: number
+          case_date: string
+          case_number: string
+          combine_run_number: string | null
+          created_at: string
+          hospital_id: string
+          id: string
+          notes: string | null
+          representative_id: string
+          sap_invoice_date: string | null
+          sap_invoice_value: number | null
+          sets_required: number
+          status: string
+          surgeon_id: string
+          surgery_type: string
+          updated_at: string
+          usage_number: string | null
+        }
+        Insert: {
+          booking_value: number
+          case_date: string
+          case_number?: string
+          combine_run_number?: string | null
+          created_at?: string
+          hospital_id: string
+          id?: string
+          notes?: string | null
+          representative_id: string
+          sap_invoice_date?: string | null
+          sap_invoice_value?: number | null
+          sets_required?: number
+          status?: string
+          surgeon_id: string
+          surgery_type: string
+          updated_at?: string
+          usage_number?: string | null
+        }
+        Update: {
+          booking_value?: number
+          case_date?: string
+          case_number?: string
+          combine_run_number?: string | null
+          created_at?: string
+          hospital_id?: string
+          id?: string
+          notes?: string | null
+          representative_id?: string
+          sap_invoice_date?: string | null
+          sap_invoice_value?: number | null
+          sets_required?: number
+          status?: string
+          surgeon_id?: string
+          surgery_type?: string
+          updated_at?: string
+          usage_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surgical_cases_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surgical_cases_representative_id_fkey"
+            columns: ["representative_id"]
+            isOneToOne: false
+            referencedRelation: "representatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surgical_cases_surgeon_id_fkey"
+            columns: ["surgeon_id"]
+            isOneToOne: false
+            referencedRelation: "surgeons"
             referencedColumns: ["id"]
           },
         ]

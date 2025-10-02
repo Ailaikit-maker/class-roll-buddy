@@ -11,7 +11,9 @@ import {
   GraduationCap,
   UserCog,
   Download,
-  BarChart3
+  BarChart3,
+  Trophy,
+  Activity
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +29,15 @@ const Dashboard = () => {
       path: "/register",
       available: true,
       color: "bg-success text-success-foreground"
+    },
+    {
+      id: "learner-profile",
+      title: "Learner Profile",
+      description: "View comprehensive learner information and records",
+      icon: GraduationCap,
+      path: "/learner-profile",
+      available: true,
+      color: "bg-primary text-primary-foreground"
     },
     {
       id: "planning",
@@ -54,6 +65,24 @@ const Dashboard = () => {
       path: "/finance",
       available: true,
       color: "bg-emerald text-emerald-foreground"
+    },
+    {
+      id: "activities",
+      title: "Activities",
+      description: "Manage extracurricular activities and enrollments",
+      icon: Building2,
+      path: "/activities",
+      available: true,
+      color: "bg-cyan text-cyan-foreground"
+    },
+    {
+      id: "awards",
+      title: "Awards",
+      description: "Track learner achievements and awards",
+      icon: AlertTriangle,
+      path: "/awards",
+      available: true,
+      color: "bg-warning text-warning-foreground"
     },
     {
       id: "reports",
@@ -175,7 +204,7 @@ const Dashboard = () => {
 
         {/* Main Modules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {mainModules.slice(0, 6).map((module) => {
+          {mainModules.map((module) => {
             const IconComponent = module.icon;
             
             return (
@@ -205,31 +234,6 @@ const Dashboard = () => {
               </Card>
             );
           })}
-          
-          {/* Internal Communication - Full width on last row */}
-          <Card 
-            className={`${mainModules[6].color} hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden relative group ${
-              !mainModules[6].available ? 'opacity-75' : ''
-            } md:col-span-2 lg:col-span-1`}
-            onClick={() => mainModules[6].available && navigate(mainModules[6].path)}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <Building2 className="h-8 w-8 mb-3" />
-                  <CardTitle className="text-xl mb-1">
-                    {mainModules[6].title}
-                  </CardTitle>
-                </div>
-                <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/10"></div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <CardDescription className="text-current/90 text-sm leading-relaxed">
-                {mainModules[6].description}
-              </CardDescription>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Management Tools Section */}
