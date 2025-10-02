@@ -41,7 +41,7 @@ const Layout = ({ children }: LayoutProps) => {
   ];
 
   const managementTools = [
-    { id: "planning", title: "Planning", icon: ClipboardList, path: "/planning", available: false },
+    { id: "planning", title: "Planning", icon: ClipboardList, path: "/planning", available: true },
     { id: "data-hub", title: "Data Hub", icon: Database, path: "/data-hub", available: true },
     { id: "reports", title: "Reports", icon: BarChart3, path: "/reports", available: true },
     { id: "internal-communication", title: "Internal Communication", icon: MessageSquare, path: "/internal-communication", available: false },
