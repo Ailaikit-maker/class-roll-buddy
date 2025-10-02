@@ -37,15 +37,15 @@ const Layout = ({ children }: LayoutProps) => {
     { id: "awards", title: "Awards", icon: Trophy, path: "/awards", available: true },
     { id: "assignments", title: "Assignments", icon: FileText, path: "/assignments", available: true },
     { id: "parent-communication", title: "Parent Communication", icon: MessageCircle, path: "/parent-communication", available: true },
-  ];
-
-  const managementTools = [
     { id: "planning", title: "Planning", icon: ClipboardList, path: "/planning", available: true },
     { id: "data-hub", title: "Data Hub", icon: Database, path: "/data-hub", available: true },
     { id: "reports", title: "Reports", icon: BarChart3, path: "/reports", available: true },
+    { id: "timetables", title: "Timetables", icon: Calendar, path: "/timetables", available: true },
+  ];
+
+  const managementTools = [
     { id: "finance", title: "Finance", icon: DollarSign, path: "/finance", available: true },
     { id: "internal-communication", title: "Internal Communication", icon: MessageSquare, path: "/internal-communication", available: false },
-    { id: "timetables", title: "Timetables", icon: Calendar, path: "/timetables", available: true },
     { id: "classes", title: "Classes", icon: GraduationCap, path: "/classes", available: true },
     { id: "staff-admin", title: "Staff Admin", icon: UserCog, path: "/staff-admin", available: true },
   ];
