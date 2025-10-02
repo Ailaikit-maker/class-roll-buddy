@@ -127,28 +127,6 @@ const Disciplinary = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Logo className="h-10" />
-              <div>
-                <h1 className="text-xl font-semibold text-primary">Disciplinary & Intervention</h1>
-                <p className="text-sm text-muted-foreground">Track student behavior and interventions</p>
-              </div>
-            </div>
-            <Button 
-              onClick={handleSendReport}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Send Report to Management
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Add Record Form */}

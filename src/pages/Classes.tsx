@@ -96,46 +96,6 @@ const Classes = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Logo className="h-10" />
-              <div>
-                <h1 className="text-xl font-semibold text-primary">Class Management</h1>
-                <p className="text-sm text-muted-foreground">Hierarchical view of classes organized by teachers</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "hierarchy" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("hierarchy")}
-              >
-                <Network className="mr-2 h-4 w-4" />
-                Hierarchy
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="mr-2 h-4 w-4" />
-                List View
-              </Button>
-              <Button 
-                onClick={handleAddClass}
-                className="bg-success hover:bg-success/90 ml-2"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Class
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {teachers.map((teacher) => (
