@@ -18,6 +18,7 @@ import {
   Database,
   BarChart3,
   MessageSquare,
+  Archive,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -38,6 +39,7 @@ const Layout = ({ children }: LayoutProps) => {
     { id: "assignments", title: "Assignments", icon: FileText, path: "/assignments", available: true },
     { id: "parent-communication", title: "Parent Communication", icon: MessageCircle, path: "/parent-communication", available: true },
     { id: "planning", title: "Planning", icon: ClipboardList, path: "/planning", available: true },
+    { id: "lesson-archive", title: "Lesson Archive", icon: Archive, path: "/lesson-archive", available: true },
     { id: "data-hub", title: "Data Hub", icon: Database, path: "/data-hub", available: true },
     { id: "reports", title: "Reports", icon: BarChart3, path: "/reports", available: true },
     { id: "timetables", title: "Timetables", icon: Calendar, path: "/timetables", available: true },
